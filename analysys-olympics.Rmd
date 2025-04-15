@@ -1,0 +1,158 @@
+---
+title: "Olympic Athletes with GDP and Population"
+output: html_document
+date: "2025-04-14"
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+We first start by reading the input data
+
+```{r load_data, message=FALSE, warning=FALSE}
+
+# Load athlete data
+athletes <- read.csv("C:/Users/errmi/Desktop/MPSL/athlete_events.csv")
+
+# Load GDP data (skip first 4 metadata rows)
+gdp <- read.csv("C:/Users/errmi/Desktop/MPSL/API_NY.GDP.PCAP.CD_DS2_en_csv_v2_26433.csv", skip = 4)
+
+# Load population data (skip first 4 metadata rows)
+population <- read.csv("C:/Users/errmi/Desktop/MPSL/API_SP.POP.TOTL_DS2_en_csv_v2_26346.csv", skip = 4)
+```
+
+
+```{r check_data}
+# See the first few rows of each dataset
+head(athletes)
+head(gdp)
+head(population)
+
+# Also check dimensions
+dim(athletes)
+dim(gdp)
+dim(population)
+```
+
+we will now get rid of redundunt columns in the olympics dataset ( by removing the columns season , Event and games)
+
+```{r clean_olympics_data}
+# Remove the columns: Season, Games , Event
+athletes_clean <- athletes[, !(names(athletes) %in% c("Season", "Games", "Event"))]
+
+# Check the result
+head(athletes_clean)
+```
+
+```{r tidy_transform_gdp_pop_fixed}
+library(tidyverse)
+library(readr)
+
+# GDP long format
+gdp_long <- gdp %>%
+  select(`Country.Name`, starts_with("X19"), starts_with("X20")) %>%
+  pivot_longer(cols = starts_with("X"), names_to = "Year", values_to = "GDP") %>%
+  mutate(Year = as.integer(sub("X", "", Year))) %>%
+  rename(Country = `Country.Name`)
+
+# Population long format
+pop_long <- population %>%
+  select(`Country.Name`, starts_with("X19"), starts_with("X20")) %>%
+  pivot_longer(cols = starts_with("X"), names_to = "Year", values_to = "Population") %>%
+  mutate(Year = as.integer(sub("X", "", Year))) %>%
+  rename(Country = `Country.Name`)
+
+# Preview
+head(gdp_long)
+head(pop_long)
+
+```
+
+
+```{r}
+# Step 1: Copy the clean athlete dataset
+athletes_merged <- athletes_clean
+
+# Step 2: Rename columns to match for join
+athletes_merged <- athletes_merged %>%
+  rename(Country = Team) %>%
+  mutate(Year = as.integer(Year)) # Ensure Year is integer for join
+
+# Step 3: Join GDP and Population by Country + Year
+athletes_merged <- athletes_merged %>%
+  left_join(gdp_long, by = c("Country", "Year")) %>%
+  left_join(pop_long, by = c("Country", "Year"))
+
+# Step 4: Check result
+head(athletes_merged)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Filter out NA GDP
+medals_clean <- medals_summary %>%
+  filter(!is.na(GDP))
+
+# Scatter plot with smooth trend line
+ggplot(medals_clean, aes(x = GDP, y = Total_Medals)) +
+  geom_point(alpha = 0.4, color = "blue") +
+  geom_smooth(method = "loess", se = FALSE, color = "darkred", size = 1.2) +
+  scale_x_log10() +
+  labs(
+    title = "Relationship between GDP per Capita and Total Olympic Medals",
+    x = "GDP per Capita (log scale)",
+    y = "Total Medals"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 12)
+  )
+
+
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+
+
+# 1. Summarise per country (total medals + avg GDP)
+medals_by_gdp <- athletes_merged %>%
+  filter(!is.na(Medal)) %>%
+  group_by(Country) %>%
+  summarise(
+    Total_Medals = n(),
+    GDP = mean(GDP, na.rm = TRUE)
+  ) %>%
+  filter(!is.na(GDP))  # Remove countries with missing GDP
+
+# 2. Scatter plot with smooth curve
+ggplot(medals_by_gdp, aes(x = GDP, y = Total_Medals)) +
+  geom_point(alpha = 0.4, color = "blue") +
+  geom_smooth(method = "loess", se = FALSE, color = "darkred", size = 1.2) +
+  scale_x_log10() +  # log scale for better readability
+  labs(
+    title = "Total Olympic Medals per Country vs. GDP per Capita",
+    x = "GDP per Capita (log scale)",
+    y = "Total Medals"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 12)
+  )
+
+
+
+
+```
+
