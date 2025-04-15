@@ -5,7 +5,7 @@
 "0","# Prepare and merge only valid countries"
 "0","athletes_merged <- athletes_clean %>%"
 "0","  rename(Country = Team) %>%"
-"0","  filter(Country %in% valid_countries) %>%   # ✅ filter here"
+"0","  filter(Country %in% valid_countries) %>%   "
 "0","  mutate(Year = as.integer(Year)) %>%"
 "0","  left_join(gdp_long, by = c(""Country"", ""Year"")) %>%"
 "0","  left_join(pop_long, by = c(""Country"", ""Year""))"
