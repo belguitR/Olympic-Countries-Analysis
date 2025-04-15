@@ -1,5 +1,0 @@
-"0","# Remove the columns: Season, Games , Event"
-"0","athletes_clean <- athletes[, !(names(athletes) %in% c(""Season"", ""Games"", ""Event""))]"
-"0",""
-"0","# Check the result"
-"0","head(athletes_clean)"
