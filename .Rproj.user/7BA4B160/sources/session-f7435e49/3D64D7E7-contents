@@ -82,11 +82,7 @@ after merging the data and in order to make the first graphs we ll have to filte
 # Filter to real medals, deduplicate per medal event
 medals_cleaned <- athletes_merged %>%
   filter(!is.na(Medal)) %>%
-```
-
-
-```{r}
-distinct(Country, Year, Event, Medal, Sport)
+  distinct(Country, Year, Event, Medal, Sport)
 
 # Join GDP & Population again
 medals_summary <- medals_cleaned %>%

@@ -1,0 +1,3 @@
+"0","athletes_clean <- athletes[, !(names(athletes) %in% c(""Season"", ""Games""))]"
+"0",""
+"0","head(athletes_clean)"
