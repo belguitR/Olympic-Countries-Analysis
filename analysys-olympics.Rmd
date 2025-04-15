@@ -13,21 +13,21 @@ We first start by reading the input data
 
 ```{r load_data, message=FALSE, warning=FALSE}
 
-# Load athlete data
+
 athletes <- read.csv("C:/Users/errmi/Desktop/MPSL/athlete_events.csv")
 
-# Load GDP data (skip first 4 metadata rows)
+
 gdp <- read.csv("C:/Users/errmi/Desktop/MPSL/API_NY.GDP.PCAP.CD_DS2_en_csv_v2_26433.csv", skip = 4)
 
-# Load population data (skip first 4 metadata rows)
+
 population <- read.csv("C:/Users/errmi/Desktop/MPSL/API_SP.POP.TOTL_DS2_en_csv_v2_26346.csv", skip = 4)
 ```
 
 
-we will now get rid of redundunt columns in the olympics dataset ( by removing the columns season , Event and games)
+we will now get rid of redundunt columns in the olympics dataset ( by removing the columns season   and games)
 
 ```{r}
-athletes_clean <- athletes[, !(names(athletes) %in% c("Season", "Games", "Event"))]
+athletes_clean <- athletes[, !(names(athletes) %in% c("Season", "Games"))]
 
 head(athletes_clean)
 ```
@@ -57,7 +57,7 @@ head(gdp_long)
 head(pop_long)
 
 ```
- after filtering the countries using a list from the gdp and populations datasets since the column team in athletes dataset sometimes has non country elements , we will then merge the three datasets left joining using the year  and the country which corresponds to the column team in the athlets dataset 
+after filtering the countries using a list from the gdp and populations datasets since the column team in athletes dataset sometimes has non country elements , we will then merge the three datasets left joining using the year  and the country which corresponds to the column team in the athlets dataset 
 
 ```{r}
 
@@ -67,7 +67,7 @@ valid_countries <- union(gdp_long$Country, pop_long$Country) %>% unique()
 # Prepare and merge only valid countries
 athletes_merged <- athletes_clean %>%
   rename(Country = Team) %>%
-  filter(Country %in% valid_countries) %>%   # ✅ filter here
+  filter(Country %in% valid_countries) %>%   
   mutate(Year = as.integer(Year)) %>%
   left_join(gdp_long, by = c("Country", "Year")) %>%
   left_join(pop_long, by = c("Country", "Year"))
@@ -75,12 +75,19 @@ athletes_merged <- athletes_clean %>%
 # Check result
 head(athletes_merged)
 ```
-after mergng the data and in order to make the first graphs we ll have to filter everytime what s is not available such as the GDP and population 
+after merging the data and in order to make the first graphs we ll have to filter everytime what s is not available such as the GDP and population 
 
 ```{r}
 # Total medals per country (across all years)
-medals_summary <- athletes_merged %>%
-  filter(!is.na(Medal)) %>%  # Only count actual medals
+# Filter to real medals, deduplicate per medal event
+medals_cleaned <- athletes_merged %>%
+  filter(!is.na(Medal)) %>%
+  distinct(Country = Team, Year, Event, Medal, Sport)
+
+# Join GDP & Population again
+medals_summary <- medals_cleaned %>%
+  left_join(gdp_long, by = c("Country", "Year")) %>%
+  left_join(pop_long, by = c("Country", "Year")) %>%
   group_by(Country) %>%
   summarise(
     Total_Medals = n(),
@@ -88,6 +95,7 @@ medals_summary <- athletes_merged %>%
     Population = max(Population, na.rm = TRUE),
     .groups = "drop"
   )
+
 
 # Check result
 head(medals_summary)
@@ -105,22 +113,18 @@ medals_clean <- medals_summary %>%
     !is.na(Total_Medals),
   )
 
-# Plot with full Y axis
+
 ggplot(medals_clean, aes(x = GDP, y = Total_Medals)) +
-  geom_point(alpha = 0.6, color = "#00BFC4", size = 2) +  # Blue-green points
-  geom_smooth(method = "lm", se = TRUE, color = "darkred", size = 1.2) +
+  geom_point(alpha = 0.6, color = "#00BFC4", size = 2) +
   scale_x_log10() +
+  scale_y_log10() +  
   labs(
-    title = "Relationship between GDP per Capita and Total Olympic Medals",
+    title = "GDP per Capita vs Total Olympic Medals (Log Scale)",
     x = "GDP per Capita (log scale)",
-    y = "Total Medals (All-Time)"
+    y = "Total Medals (log scale)"
   ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 16, face = "bold"),
-    axis.text = element_text(size = 11),
-    axis.title = element_text(size = 13)
-  )
+  theme_minimal()
+
 
 
 
@@ -132,16 +136,24 @@ library(ggplot2)
 library(dplyr)
 
 # Filter out countries with missing population
-medals_summary_clean <- medals_summary %>%
-  filter(!is.na(Population))
+medals_summary_normalized <- medals_summary %>%
+  filter(!is.na(Population), Population > 0) %>%
+  mutate(
+    Medals_per_Million = Total_Medals / (Population / 1e6),
+    Pop_Group = case_when(
+      Population < 1e7 ~ "Small (<10M)",
+      Population < 1e8 ~ "Medium (10M-100M)",
+      TRUE ~ "Large (>100M)"
+    )
+  )
 
-ggplot(medals_summary_clean, aes(x = Population, weight = Total_Medals)) +
-  geom_histogram(bins = 30, fill = "tomato", color = "white") +
-  scale_x_log10() +  
+ggplot(medals_summary_normalized, aes(x = Pop_Group, y = Medals_per_Million)) +
+  geom_boxplot(fill = "skyblue") +
+  scale_y_log10() +
   labs(
-    title = "Distribution of Olympic Medals by Country Population",
-    x = "Population (log scale)",
-    y = "Total Medals "
+    title = "Medals per Million by Population Group",
+    x = "Population Group",
+    y = "Medals per Million (log scale)"
   ) +
   theme_minimal()
 
@@ -149,36 +161,37 @@ ggplot(medals_summary_clean, aes(x = Population, weight = Total_Medals)) +
 
 
 
+
+
 ```
-From the graph, we can observe that countries with mid-sized populations (around 10 million to 500 million) tend to win the most medals overall. On the other hand  countries with very large populations (above 1 billion) and very small populations (under 1 million) contribute fewer medals in total. This suggests that while population size can provide a larger talent pool, other factors like GDP
+From the graph, we can observe that that smaller countries tend to win more medals per million people than larger ones. While large populations offer a bigger talent pool, they don’t guarantee Olympic success. Medium-sized and small countries often perform better relative to their population, likely due to stronger sports programs or focused investment.
 
 countries with  mid-sized populations usualy are the developed countries such as europe japan and north america that explains the important number of medals The only major outlier beyond the 1 billion population mark in Olympic medal count is likely China, as it consistently secures a high number of medals, unlike India which, despite a similarly large population, contributes fewer medals overall.
-
-
-
 
 ```{r}
 library(ggplot2)
 library(dplyr)
 
+library(ggrepel)
 
-medals_colored <- medals_summary %>%
-  filter(!is.na(GDP) & !is.na(Population))
+top_medals <- medals_colored %>%
+  arrange(desc(Total_Medals)) %>%
+  slice_head(n = 10)
 
 ggplot(medals_colored, aes(x = GDP, y = Total_Medals, color = Population)) +
-  geom_point(alpha = 0.7, size = 3) +
+  geom_point(alpha = 0.8, size = 3) +
   scale_x_log10() +
-  scale_color_gradient(low = "lightblue", high = "darkred", name = "Population") +
+  scale_y_log10() +
+  scale_color_viridis_c(trans = "log10") +
+  geom_text_repel(data = top_medals, aes(label = Country), size = 3.2) +
   labs(
-    title = "Olympic Medals vs GDP per Capita (Color = Population)",
+    title = "Top Medal Countries: GDP vs Medals",
     x = "GDP per Capita (log scale)",
-    y = "Total Olympic Medals"
+    y = "Total Olympic Medals (log scale)",
+    color = "Population"
   ) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(face = "bold", size = 14),
-    axis.title = element_text(size = 12)
-  )
+  theme_minimal()
+
 
 ```
 we can conclude that  countries with higher GDP per capita generally win more Olympic medals, especially those with moderate to large populations. While most high-population countries cluster at lower medal counts, a few exceptions—likely including China and the U.S.—stand out with both high population and high medal tallies. Overall, GDP per capita appears to be a stronger a stronger indicator of Olympic success than population alone.
