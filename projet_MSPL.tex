@@ -1,0 +1,310 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Factors Influencing Olympic Performance Across Countries},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Factors Influencing Olympic Performance Across Countries}
+\author{}
+\date{\vspace{-2.5em}2025-04-14}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\textbf{Students: Rami BELGUITH , Mahrez Mustapha , Cheikh Anis , Saidou
+Momo Abdoul kader }
+
+\subsection{1. Introduction}\label{introduction}
+
+This project explores the factors that influence a country's performance
+in the Olympic Games. By analyzing historical Olympic athlete data
+alongside country-level information, we aim to understand what drives
+national success in terms of medal counts. While particular attention is
+given to economic indicators such as GDP per capita and population, we
+also consider broader historical and geopolitical influences, including
+events like World Wars, the Cold War, and national investment in sports.
+This approach helps explain why some countries consistently perform
+better than others on the global Olympic stage.
+
+\subsubsection{Context \& Dataset
+Description}\label{context-dataset-description}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Olympic Dataset}: \texttt{athlete\_events.csv} from Kaggle
+  contains data on all athletes who participated in the Olympic Games
+  from 1896 to 2016.
+\item
+  \textbf{GDP \& Population}: Extracted from the World Bank,
+  representing GDP per capita and population for most countries between
+  1960 and 2020.
+\end{itemize}
+
+\subsubsection{How the Dataset Has Been
+Obtained?}\label{how-the-dataset-has-been-obtained}
+
+\begin{itemize}
+\tightlist
+\item
+  The Olympic data was downloaded from Kaggle.
+\item
+  GDP and population datasets were downloaded from the World Bank's data
+  portal.
+\end{itemize}
+
+\subsubsection{Description of the
+Question}\label{description-of-the-question}
+
+We aim to study: - Whether wealthier countries (by GDP per capita) win
+more Olympic medals. - How population size affects medal counts per
+capita.
+
+\subsection{2. Methodology}\label{methodology}
+
+\subsubsection{Data Clean-up Procedures}\label{data-clean-up-procedures}
+
+\begin{itemize}
+\tightlist
+\item
+  Dropped irrelevant columns from the Olympic dataset (\texttt{Season},
+  \texttt{Games}).
+\item
+  Renamed columns for consistency.
+\item
+  Converted GDP and population data from wide to long format.
+\item
+  Filtered out invalid countries (e.g., mixed teams, regions).
+\item
+  Merged datasets using country name and year.
+\end{itemize}
+
+\subsubsection{Scientific Workflow}\label{scientific-workflow}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Clean datasets.
+\item
+  Convert and align formats.
+\item
+  Merge on common keys.
+\item
+  Analyze medal counts vs GDP/population.
+\item
+  Visualize results.
+\end{enumerate}
+
+\subsubsection{Data Representation
+Choices}\label{data-representation-choices}
+
+\begin{itemize}
+\tightlist
+\item
+  Used log-log plots to handle skewed data distributions.
+\item
+  Boxplots to show relative medals per million by population group.
+\item
+  Used color scales and labels to highlight outliers.
+\end{itemize}
+
+\subsection{3. Data Preparation}\label{data-preparation}
+
+We first start by reading the input data
+
+we will now get rid of redundant columns in the olympics dataset ( by
+removing the columns season and games)
+
+then we change the format of the two datasets taken from world bank data
+to put them in long format instead of the original wide format
+
+\subsection{4. Merging Datasets}\label{merging-datasets}
+
+after filtering the countries using a list from the gdp and populations
+datasets since the column team in athletes dataset sometimes has non
+country elements , we will then merge the three datasets left joining
+using the year and the country which corresponds to the column team in
+the athlets dataset
+
+after merging the data and in order to make the first graphs we ll have
+to filter everytime what s is not available such as the GDP and
+population
+
+\subsection{5. Analysis}\label{analysis}
+
+\subsubsection{5.1 GDP vs Total Medals}\label{gdp-vs-total-medals}
+
+\includegraphics{projet_MSPL_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+the relationship between GDP per capita and the total number of Olympic
+medals won by countries. Overall, there is a weak but noticeable
+positive trend, suggesting that countries with higher GDP per capita
+tend to win more medals. However, the correlation is not strong
+countries with modest GDP still achieve high medal counts, likely due to
+strong sports infrastructure or cultural emphasis on athletics.
+Conversely, many wealthy countries cluster with low to moderate medal
+counts. This implies that while economic wealth can support athletic
+success, it is not the only determining factor
+
+\subsubsection{5.2 Medals per Million by Population
+Group}\label{medals-per-million-by-population-group}
+
+\includegraphics{projet_MSPL_files/figure-latex/unnamed-chunk-6-1.pdf}
+From the graph, we can observe that that smaller countries tend to win
+more medals per million people than larger ones. While large populations
+offer a bigger talent pool, they don't guarantee Olympic success.
+Medium-sized and small countries often perform better relative to their
+population, likely due to stronger sports programs or focused
+investment.
+
+countries with mid-sized populations usualy are the developed countries
+such as europe japan and north america that explains the important
+number of medals The only major outlier beyond the 1 billion population
+mark in Olympic medal count is likely China, as it consistently secures
+a high number of medals, unlike India which, despite a similarly large
+population, contributes fewer medals overall.
+
+\subsubsection{5.3 Highlighting Top
+Countries}\label{highlighting-top-countries}
+
+\includegraphics{projet_MSPL_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+we can conclude that countries with higher GDP per capita generally win
+more Olympic medals, especially those with moderate to large
+populations. While most high-population countries cluster at lower medal
+counts, a few exceptions---likely including China and the U.S.---stand
+out with both high population and high medal tallies. Overall, GDP per
+capita appears to be a stronger a stronger indicator of Olympic success
+than population alone.
+
+\subsubsection{5.4 Analyzing cultural differences and cost of
+practice}\label{analyzing-cultural-differences-and-cost-of-practice}
+
+The total costs and investments needed to practice each sport vary
+wildly, as the figures below illustrates, some sports like Skiing and
+Tennis require more equipment and higher registration costs, other like
+athletics are alot more accessible to all socio economic categories of a
+population, this has a direct result on the performance in the Olympics
+for each sport as the number of sports accessible and availible to the
+populations of first world countries is alot bigger than the number of
+sports available to developing and third world countries.
+
+On the basis of the infograpghic we selected a number of ``coslty''
+sports and ``cheap'' sports, calculated the median GDP and visualize the
+performance of each category for these selected sports.
+
+We'll use a bar plot which allows direct side-by-side comparison within
+each sport category, making disparities immediately visible, the log
+scale accommodates the wide range of medal counts and makes relative
+differences more apparent, finally, dividing by the number of countries
+in each category creates a fair comparison, removing the bias from
+having more developing countries than developed ones
+
+\includegraphics{projet_MSPL_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+We can see that while first world countries perform better than
+developing countries across the board as expected, developing countries
+struggle alot more in ``costly'' sports such as Tennis and Table Tennis
+than in Athletics and Judo,
+
+We note also that the number of medals per country for Table Tennis is
+barely higher than one,due primarily to the dominance of a handful of
+east asian countries (mainly China), which suggests that the cultural
+aspect plays a much bigger role in some sports regardless of the
+investments needded.
+
+\subsection{6. Conclusion}\label{conclusion}
+
+There is a weak positive relationship between GDP per capita and Olympic
+medal counts, suggesting that economic strength helps but is not the
+sole predictor of success. Smaller and mid-sized countries often perform
+better per capita due to more focused programs.
+
+This analysis highlights that while some measurable and quantifiable
+metrics such as wealth and population have an influence on the
+performances of a country in the Olympics, they alone do not guarantee
+dominance, other non quantifiable factors (cultural, political, and
+structural\ldots etc) also play key roles.
+
+Also, factors related to the Olympics themselves that aren't necessarily
+related to the participating countries (rules, admission of
+professionals, sports selected).
+
+\subsection{7. References}\label{references}
+
+\begin{itemize}
+\tightlist
+\item
+  Olympic Data:
+  \url{https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results}
+\item
+  World Bank GDP/Population: \url{https://data.worldbank.org}
+\end{itemize}
+
+\end{document}
