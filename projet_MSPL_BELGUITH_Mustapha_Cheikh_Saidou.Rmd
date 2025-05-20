@@ -235,7 +235,8 @@ ggplot(medals_summary_normalized, aes(x = Pop_Group, y = Medals_per_Million)) +
 
 
 ```
-From the graph, we can observe that that smaller countries tend to win more medals per million people than larger ones. While large populations offer a bigger talent pool, they don’t guarantee Olympic success. Medium-sized and small countries often perform better relative to their population, likely due to stronger sports programs or focused investment.
+
+  From the graph, we can observe that that smaller countries tend to win more medals per million people than larger ones. While large populations offer a bigger talent pool, they don’t guarantee Olympic success. Medium-sized and small countries often perform better relative to their population, likely due to stronger sports programs or focused investment.
 
 countries with  mid-sized populations usualy are the developed countries such as europe japan and north america that explains the important number of medals The only major outlier beyond the 1 billion population mark in Olympic medal count is likely China, as it consistently secures a high number of medals, unlike India which, despite a similarly large population, contributes fewer medals overall.
 
