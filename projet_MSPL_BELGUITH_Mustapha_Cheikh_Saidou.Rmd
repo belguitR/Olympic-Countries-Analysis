@@ -17,7 +17,7 @@ output:
   
 ## 1. Introduction
 
-This project explores the factors that influence a country's performance in the Olympic Games. By analyzing historical Olympic athlete data alongside country-level information, we aim to understand what drives national success in terms of medal counts. While particular attention is given to economic indicators such as GDP per capita and population, we also consider broader historical and clutural influences, including the national investment in sports. This approach helps explain why some countries consistently perform better than others on the global Olympic stage.
+This project explores the factors that influence a country's performance in the Olympic Games. By analyzing historical Olympic athlete data alongside country-level information, we aim to understand what drives national success in terms of medal counts. While particular attention is given to economic indicators such as GDP per capita and population, we also consider broader historical and cultural influences, including the national investment in sports. This approach helps explain why some countries consistently perform better than others on the global Olympic stage.
 
 ### Context & Dataset Description
 
